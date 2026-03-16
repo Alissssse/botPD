@@ -422,6 +422,53 @@ CATEGORY_CONFIG = {
     },
 }
 
+# Директории с локальными файлами для категорий
+CATEGORY_DIRS = {
+    "comics": "комиксы",
+    "memes": "memes",
+    "history": "история",
+    "movies": "физика",
+    "calendar": "календарь",
+    "notes": "конспекты",
+}
+
+def _get_category_items(category: str):
+    """Возвращает список элементов категории на основе файлов в папке."""
+    folder_name = CATEGORY_DIRS.get(category)
+    if not folder_name:
+        return []
+
+    folder_path = BASE_DIR / folder_name
+    if not folder_path.exists() or not folder_path.is_dir():
+        return []
+
+    exts = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+    files = sorted(
+        [
+            f
+            for f in folder_path.iterdir()
+            if f.is_file() and f.suffix.lower() in exts
+        ],
+        key=lambda p: p.name.lower(),
+    )
+
+    items = []
+    for f in files:
+        rel_path = f"{folder_name}/{f.name}"
+
+        # Заголовок по умолчанию — без нумерации вида «1 из N»
+        base_title = f.stem
+
+        item = {"file": rel_path, "title": base_title}
+
+        # Для фильмов особый длинный текст для файла с драконами
+        if category == "movies" and "физика0" in f.name.lower():
+            item["caption_text"] = MOVIE_DRAGONS_LONG_TEXT
+
+        items.append(item)
+
+    return items
+
 QUIZ_QUESTIONS = [
     {
         "id": "q1",
@@ -529,7 +576,7 @@ async def send_quiz(chat):
     )
 
 MEDIA_CACHE = {}
-FILE_ID_CACHE = {category: [None] * len(items) for category, items in CATEGORY_CONTENT.items()}
+FILE_ID_CACHE = {}
 LOCK_FILE = BASE_DIR / "bot.lock"
 LOCK_FILE_HANDLE = None
 
@@ -620,16 +667,10 @@ def _load_media(file_name: str):
         MEDIA_CACHE[file_name] = None
     return MEDIA_CACHE[file_name]
 
-# Прогреваем кэш сразу при старте
-for items in CATEGORY_CONTENT.values():
-    for item in items:
-        _load_media(item["file"])
-
-
 async def send_category_item(query, category, index, edit=False):
     """Показать элемент категории из локальных файлов"""
     config = CATEGORY_CONFIG.get(category)
-    items = CATEGORY_CONTENT.get(category, [])
+    items = _get_category_items(category)
     total = len(items)
 
     back_keyboard = InlineKeyboardMarkup(
@@ -663,7 +704,12 @@ async def send_category_item(query, category, index, edit=False):
 
     index = index % total
     item = items[index]
-    file_ids = FILE_ID_CACHE.setdefault(category, [None] * total)
+
+    # Инициализируем кэш file_id под реальное количество файлов
+    file_ids = FILE_ID_CACHE.get(category)
+    if not file_ids or len(file_ids) != total:
+        file_ids = [None] * total
+        FILE_ID_CACHE[category] = file_ids
     cached_file_id = file_ids[index]
 
     media_bytes = None
@@ -697,7 +743,7 @@ async def send_category_item(query, category, index, edit=False):
         caption_lines.append(extra_caption)
     elif "description" in config:
         caption_lines.append(config["description"])
-    caption_lines.append(f"📊 {config['singular']} {index + 1} из {total}")
+    # Убираем подпись вида «Мем 1 из 2»
     caption = "\n\n".join(caption_lines)
 
     if not cached_file_id and not media_bytes:
