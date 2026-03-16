@@ -352,6 +352,7 @@ CATEGORY_CONFIG = {
     "comics": {
         "emoji": "🎨",
         "singular": "Комикс",
+        "header": "Комиксы",
         "description": (
             "Короткие истории в картинках, которые объясняют физику через знакомые жизненные ситуации. "
             "Помогают увидеть формулы «в действии», а не только в тетради. "
@@ -364,6 +365,7 @@ CATEGORY_CONFIG = {
     "memes": {
         "emoji": "😂",
         "singular": "Мем",
+        "header": "Мемы",
         "description": (
             "Короткие шутки и мемы про физику, учёбу и экзамены. "
             "Они помогают немного разгрузить голову, но при этом всё равно держат тебя в контексте предмета. "
@@ -376,6 +378,7 @@ CATEGORY_CONFIG = {
     "history": {
         "emoji": "📚",
         "singular": "Справка",
+        "header": "История физики",
         "description": (
             "Короткие истории о людях, идеях и экспериментах, благодаря которым появилась современная физика. "
             "Помогают почувствовать, что за формулами стоят живые сюжеты и иногда очень необычные события. "
@@ -388,6 +391,7 @@ CATEGORY_CONFIG = {
     "movies": {
         "emoji": "🎬",
         "singular": "Запись",
+        "header": "Физика в фильмах",
         "description": (
             "Записи о том, как законы физики работают (или не работают) в любимых фильмах и сериалах. "
             "Каждая история — повод вспомнить теорию и посмотреть на привычные сцены с научной стороны."
@@ -399,6 +403,7 @@ CATEGORY_CONFIG = {
     "calendar": {
         "emoji": "📅",
         "singular": "Запись календарика",
+        "header": "Календарик",
         "description": (
             "Календарь событий из мира физики: даты открытий, юбилеи учёных и просто любопытные поводы. "
             "Такие заметки помогают увидеть, что физика развивается каждый год, а не живёт только в учебнике. "
@@ -411,6 +416,7 @@ CATEGORY_CONFIG = {
     "notes": {
         "emoji": "📝",
         "singular": "Конспект",
+        "header": "Конспекты",
         "description": (
             "Краткие и структурированные конспекты по важным темам физики. "
             "В них собраны основные формулы, ключевые идеи и типовые примеры без лишней воды. "
@@ -737,13 +743,13 @@ async def send_category_item(query, category, index, edit=False):
     keyboard_layout.append([InlineKeyboardButton("🔙 Назад в меню", callback_data="back_to_menu")])
     keyboard = InlineKeyboardMarkup(keyboard_layout)
 
-    caption_lines = [f"{config['emoji']} {item['title']}"]
-    extra_caption = item.get("caption_text")
-    if extra_caption:
-        caption_lines.append(extra_caption)
-    elif "description" in config:
+    # Заголовок — общий по разделу, без нумерации типа «Мем 1» или привязки к имени файла
+    header = config.get("header") or item["title"]
+    caption_lines = [f"{config['emoji']} {header}"]
+    # Дополнительный текст — только общее описание раздела,
+    # без специальных подписей под каждую картинку (в т.ч. для «Физика в фильмах»)
+    if "description" in config:
         caption_lines.append(config["description"])
-    # Убираем подпись вида «Мем 1 из 2»
     caption = "\n\n".join(caption_lines)
 
     if not cached_file_id and not media_bytes:
