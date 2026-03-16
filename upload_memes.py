@@ -19,7 +19,7 @@ from telegram import Bot
 from telegram.error import TelegramError
 
 # Токен бота (из bot.py)
-BOT_TOKEN = "8072782948:AAGO3OCdOAibaxjIQtaIs_j8vgAssARXr_I"
+BOT_TOKEN = "8492028452:AAHUcNPsTm1rjNPY45u_OdOzynPXr7InkqU"
 
 # ID администратора (для отправки сообщений)
 ADMIN_ID = 729218232

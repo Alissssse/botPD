@@ -6,7 +6,7 @@ import asyncio
 from telegram import Bot
 
 # Токен бота
-BOT_TOKEN = "8072782948:AAGO3OCdOAibaxjIQtaIs_j8vgAssARXr_I"
+BOT_TOKEN = "8492028452:AAHUcNPsTm1rjNPY45u_OdOzynPXr7InkqU"
 
 async def get_bot_info():
     """Получает информацию о боте и создаёт ссылку"""
