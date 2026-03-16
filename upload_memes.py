@@ -19,7 +19,7 @@ from telegram import Bot
 from telegram.error import TelegramError
 
 # Токен бота (из bot.py)
-BOT_TOKEN = "8492028452:AAHUcNPsTm1rjNPY45u_OdOzynPXr7InkqU"
+BOT_TOKEN = "7667152305:AAG3eDzwOgA8hbBwDwx7JgFguwEG6369MC0"
 
 # ID администратора (для отправки сообщений)
 ADMIN_ID = 729218232
@@ -134,19 +134,20 @@ async def main():
     # Создаём бота
     bot = Bot(token=BOT_TOKEN)
     
-    # Проверяем существование папки memes
-    if not os.path.exists('memes'):
-        print("❌ Папка 'memes' не найдена!")
-        print("📁 Создайте папку 'memes' и поместите туда изображения мемов")
-        await bot.close()
-        return
-    
     # Находим все изображения
-    image_files = find_image_files('memes')
+    # Сначала пытаемся взять из папки 'memes', если она есть и не пустая,
+    # иначе ищем картинки в текущей директории со скриптом.
+    if os.path.exists('memes'):
+        image_files = find_image_files('memes')
+    else:
+        image_files = []
     
     if not image_files:
-        print("❌ Изображения не найдены в папке 'memes'!")
-        print("📁 Поместите изображения (.jpg, .png и т.д.) в папку 'memes'")
+        image_files = find_image_files('.')
+    
+    if not image_files:
+        print("❌ Изображения не найдены!")
+        print("📁 Поместите изображения (.jpg, .png и т.д.) либо в папку 'memes', либо рядом со скриптом")
         await bot.close()
         return
     
