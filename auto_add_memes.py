@@ -13,7 +13,7 @@ from telegram import Bot
 from telegram.error import TelegramError
 
 # Токен бота
-BOT_TOKEN = "8492028452:AAHUcNPsTm1rjNPY45u_OdOzynPXr7InkqU"
+BOT_TOKEN = "8072782948:AAGO3OCdOAibaxjIQtaIs_j8vgAssARXr_I"
 ADMIN_ID = 729218232
 
 # Мемы для добавления
