@@ -983,12 +983,13 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         next_prefix = f"{category}_next_"
         prev_prefix = f"{category}_prev_"
         if data.startswith(next_prefix) or data.startswith(prev_prefix):
-            total = len(CATEGORY_CONTENT.get(category, []))
+            items = _get_category_items(category)
+            total = len(items)
             if total == 0:
                 await send_category_item(query, category, 0, edit=True)
             else:
                 try:
-                    target_index = int(data.split("_")[-1]) % total
+                    target_index = int(data.split("_")[-1])
                 except (ValueError, IndexError):
                     logger.error(f"Не удалось распарсить индекс для {data}")
                     target_index = 0
